@@ -23,7 +23,7 @@ This script automates the setup of a V2Ray proxy server with TLS encryption, Web
 1. Download the setup script:
 
 ```bash
-curl -O https://your-hosting-location/v2ray-setup.sh
+curl -O https://raw.githubusercontent.com/zweineu/fanq/main/v2ray-setup.sh
 ```
 
 2. Make the script executable:
