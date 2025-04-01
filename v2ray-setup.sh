@@ -417,64 +417,70 @@ issue_ssl() {
     fi
 }
 
-# Install V2Ray
+# Install V2Ray using official script
 install_v2ray() {
-    echo -e "\n${YELLOW}Installing V2Ray...${NC}"
+    echo -e "\n${YELLOW}Installing V2Ray using official installation script...${NC}"
     
     # Check if V2Ray is already installed
     if [ -f /usr/local/bin/v2ray ]; then
         echo -e "${GREEN}V2Ray is already installed!${NC}"
-    else
-        # Create temp directory
-        mkdir -p /tmp/v2ray
+        return
+    fi
+    
+    # Install necessary dependencies for the script
+    apt-get install -y curl wget unzip
+    
+    # Create a temporary directory for the installation script
+    mkdir -p /tmp/v2ray-install
+    cd /tmp/v2ray-install
+    
+    # Download the official installation script
+    echo -e "${YELLOW}Downloading official V2Ray installation script...${NC}"
+    if ! curl -L -o install-release.sh https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh; then
+        echo -e "${RED}Failed to download the official installation script.${NC}"
+        echo -e "${YELLOW}Attempting alternative download method...${NC}"
         
-        # Try multiple methods to download V2Ray
-        echo -e "${YELLOW}Downloading V2Ray...${NC}"
-        
-        # Method 1: Direct download from GitHub
-        if ! curl -L -H "Cache-Control: no-cache" -o /tmp/v2ray/v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip; then
-            echo -e "${YELLOW}Direct download failed. Trying alternative source...${NC}"
+        if ! wget -O install-release.sh https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh; then
+            echo -e "${RED}All download attempts failed. Please check your internet connection.${NC}"
+            echo -e "${YELLOW}Trying final fallback installation method...${NC}"
             
-            # Method 2: Official script installation
-            if ! curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh | bash; then
-                echo -e "${RED}Failed to install V2Ray. Check your internet connection and try again.${NC}"
+            # Final fallback - direct installation command
+            if ! bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh); then
+                echo -e "${RED}All installation methods failed. Exiting.${NC}"
                 exit 1
             else
-                echo -e "${GREEN}V2Ray installed using official script!${NC}"
-                # Skip the manual installation since the script handled it
+                echo -e "${GREEN}V2Ray installed successfully using direct installation!${NC}"
                 return
             fi
-        else
-            # Continue with manual installation if download succeeded
-            unzip /tmp/v2ray/v2ray.zip -d /tmp/v2ray
-            mv /tmp/v2ray/v2ray /usr/local/bin/v2ray
-            mv /tmp/v2ray/v2ctl /usr/local/bin/v2ctl
-            chmod +x /usr/local/bin/v2ray
-            chmod +x /usr/local/bin/v2ctl
         fi
-        
-        # Create V2Ray service
-        cat > /etc/systemd/system/v2ray.service << EOF
-[Unit]
-Description=V2Ray Service
-Documentation=https://www.v2fly.org/
-After=network.target nss-lookup.target
-
-[Service]
-User=root
-CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
-AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
-NoNewPrivileges=true
-ExecStart=/usr/local/bin/v2ray -config /etc/v2ray/config.json
-Restart=on-failure
-RestartPreventExitStatus=23
-
-[Install]
-WantedBy=multi-user.target
-EOF
-        mkdir -p /etc/v2ray
-        echo -e "${GREEN}V2Ray installed!${NC}"
     fi
+    
+    # Make the script executable
+    chmod +x install-release.sh
+    
+    # Run the installation script
+    echo -e "${YELLOW}Running V2Ray installation script...${NC}"
+    if ! ./install-release.sh; then
+        echo -e "${RED}Official installation script failed.${NC}"
+        exit 1
+    fi
+    
+    # Verify installation
+    if [ -f /usr/local/bin/v2ray ]; then
+        echo -e "${GREEN}V2Ray has been successfully installed!${NC}"
+    else
+        echo -e "${RED}V2Ray installation seems to have failed. Binary not found at expected location.${NC}"
+        exit 1
+    fi
+    
+    # Clean up
+    cd -
+    rm -rf /tmp/v2ray-install
+    
+    # Create v2ray config directory if it doesn't exist
+    mkdir -p /etc/v2ray
+    
+    echo -e "${GREEN}V2Ray installation completed!${NC}"
 }
 
 # Configure V2Ray
