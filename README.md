@@ -25,10 +25,6 @@ This script automates the setup of a V2Ray proxy server with TLS encryption, Web
 ```bash
 curl -O https://raw.githubusercontent.com/zweineu/fanq/main/v2ray-setup.sh
 ```
-or with cloudflare
-```bash
-curl -O https://raw.githubusercontent.com/zweineu/fanq/refs/heads/main/v2ray-setup-cloudflare.sh
-```
 
 2. Make the script executable:
 
