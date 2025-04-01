@@ -486,7 +486,7 @@ install_v2ray() {
 # Configure V2Ray
 configure_v2ray() {
     echo -e "\n${YELLOW}Configuring V2Ray...${NC}"
-    cat > /etc/v2ray/config.json << EOF
+    cat > /usr/local/etc/v2ray/config.json << EOF
 {
   "log": {
     "access": "/var/log/v2ray/access.log",
