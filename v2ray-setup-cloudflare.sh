@@ -318,22 +318,22 @@ configure_nginx_final() {
     
     # Create Cloudflare IP whitelist file
     mkdir -p /etc/nginx/conf.d
-    cat > /etc/nginx/conf.d/cloudflare.conf << EOF
-# Cloudflare IP Ranges
-EOF
-
-    # Add IPv4 ranges
-    for ip in $CF_IPV4; do
-        echo "set_real_ip_from $ip;" >> /etc/nginx/conf.d/cloudflare.conf
-    done
-    
-    # Add IPv6 ranges
-    for ip in $CF_IPV6; do
-        echo "set_real_ip_from $ip;" >> /etc/nginx/conf.d/cloudflare.conf
-    done
-    
-    # Set real IP header
-    echo "real_ip_header CF-Connecting-IP;" >> /etc/nginx/conf.d/cloudflare.conf
+    {
+        echo "# Cloudflare IP Ranges"
+        
+        # Add IPv4 ranges
+        for ip in $CF_IPV4; do
+            echo "set_real_ip_from $ip;"
+        done
+        
+        # Add IPv6 ranges
+        for ip in $CF_IPV6; do
+            echo "set_real_ip_from $ip;"
+        done
+        
+        # Set real IP header
+        echo "real_ip_header CF-Connecting-IP;"
+    } > /etc/nginx/conf.d/cloudflare.conf
     
     # Create optimized Nginx config
     cat > /etc/nginx/nginx.conf << 'EOF'
