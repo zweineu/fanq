@@ -297,7 +297,7 @@ EOF
     mkdir -p /var/log/v2ray
     
     # Set appropriate permissions
-    chmod 644 /etc/v2ray/config.json
+    chmod 644 /usr/local/etc/v2ray/config.json
     
     # Enable and start V2Ray service
     systemctl daemon-reload
